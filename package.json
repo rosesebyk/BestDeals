@@ -1,0 +1,9 @@
+{
+  "name": "bestdeals",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Best Deal Finder full-stack scaffold",
+  "scripts": {
+    "start": "node server.js"
+  }
+}

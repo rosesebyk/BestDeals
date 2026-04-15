@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Best Deal Finder</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell" id="main-app">
+      <header class="hero">
+        <p class="eyebrow">Deal Comparison Website</p>
+        <h1>Best Deal Finder</h1>
+        <p class="hero-text">Compare prices across Amazon, Flipkart &amp; Croma and find the best deal instantly.</p>
+
+        <form class="search-panel" id="search-form">
+          <div class="search-row">
+            <input
+              id="query"
+              name="query"
+              type="text"
+              value="Best laptop under ₹60,000"
+              placeholder="Search products by budget or category"
+            />
+            <button type="submit">Find Deals ↗</button>
+          </div>
+          <div class="search-suggestions" id="search-suggestions"></div>
+          <div class="pill-row" id="category-pills">
+            <button class="pill active" type="button">Laptops</button>
+            <button class="pill" type="button">Phones</button>
+            <button class="pill" type="button">TVs</button>
+            <button class="pill" type="button">Headphones</button>
+            <button class="pill" type="button">Tablets</button>
+            <button class="pill" type="button">Cameras</button>
+          </div>
+        </form>
+      </header>
+
+      <main class="page-content">
+        <section>
+          <p class="section-label">Best pick for you</p>
+          <section class="best-pick-card" id="best-pick-card">
+            <div class="best-pick-main">
+              <span class="pick-badge" id="pick-badge">Best Value</span>
+              <div class="best-pick-copy">
+                <h2 id="pick-name">Lenovo IdeaPad Slim 3</h2>
+                <p class="pick-specs" id="pick-specs">Intel i5-12th Gen, 16GB RAM, 512GB SSD, 15.6" FHD display</p>
+                <div class="pick-meta" id="pick-meta">
+                  <span id="pick-rating">4.4/5 rating</span>
+                  <span id="pick-discount">13% off</span>
+                </div>
+              </div>
+            </div>
+            <div class="pick-price">
+              <p class="price" id="pick-price">₹54,990</p>
+              <p class="orig-price" id="pick-orig">₹62,999</p>
+              <p class="save-price" id="pick-save">You save ₹8,009</p>
+              <a class="primary-cta" id="pick-cta" href="#">Buy on Amazon</a>
+            </div>
+          </section>
+        </section>
+
+        <section class="compare-section">
+          <div class="section-head">
+            <div>
+              <p class="section-label">Compare across stores</p>
+              <h2 id="query-title">Best laptop under ₹60,000</h2>
+            </div>
+            <p class="muted-note" id="results-note">Prices updated every 2 hours</p>
+          </div>
+
+          <div class="compare-grid" id="compare-grid"></div>
+        </section>
+
+        <section class="review-section">
+          <p class="section-label">What reviewers say</p>
+          <div class="review-strip" id="review-strip"></div>
+          <p class="aff-note">Links may include affiliate commissions at no extra cost to you. Prices updated every 2 hours.</p>
+        </section>
+
+        <section class="ai-section">
+          <div class="ai-grid">
+            <article class="ai-card">
+              <div class="ai-head">
+                <div>
+                  <p class="section-label">AI Search</p>
+                  <h2>Intent interpretation</h2>
+                </div>
+                <span class="ai-mode" id="ai-mode-badge">Heuristic mode</span>
+              </div>
+              <p class="ai-summary" id="ai-summary">
+                I interpreted this as a search for laptops under ₹60,000, optimized for general use.
+              </p>
+              <p class="ai-status-note" id="ai-status-note">
+                AI is currently running in fallback mode. Add an OpenAI API key in `.env` for full assistant responses.
+              </p>
+              <div class="ai-filters" id="ai-filters"></div>
+              <div class="ai-suggestions" id="ai-suggestions"></div>
+            </article>
+
+            <article class="ai-card">
+              <div class="ai-head">
+                <div>
+                  <p class="section-label">AI Assistant</p>
+                  <h2>Ask about the shortlist</h2>
+                </div>
+              </div>
+              <p class="ai-status-note" id="ai-chat-status">
+                Assistant replies are using fallback logic right now.
+              </p>
+              <div class="ai-chat-log" id="ai-chat-log"></div>
+              <form class="ai-chat-form" id="ai-chat-form">
+                <input id="ai-chat-input" type="text" placeholder="Which one is best for coding and battery life?" />
+                <button type="submit">Ask AI</button>
+              </form>
+            </article>
+          </div>
+        </section>
+
+        <section class="tabs-panel">
+          <div class="tab-row" id="tabs">
+            <button class="tab active" type="button" data-tab="filter">Filter sidebar</button>
+            <button class="tab" type="button" data-tab="price">Price history</button>
+            <button class="tab" type="button" data-tab="alert">Price alerts</button>
+            <button class="tab" type="button" data-tab="mobile">Mobile view</button>
+          </div>
+
+          <div class="tab-screen active" id="filter">
+            <div class="results-layout">
+              <aside class="sidebar-card">
+                <h3>Filters</h3>
+
+                <div class="filter-block">
+                  <p class="filter-label">Budget</p>
+                  <input id="budget-range" type="range" min="20000" max="100000" value="60000" step="1000" />
+                  <div class="range-values">
+                    <span>₹20,000</span>
+                    <span id="budget-value">₹60,000</span>
+                  </div>
+                </div>
+
+                <div class="filter-block">
+                  <p class="filter-label">Store</p>
+                  <label><input type="checkbox" data-store="Amazon" checked /> Amazon</label>
+                  <label><input type="checkbox" data-store="Flipkart" checked /> Flipkart</label>
+                  <label><input type="checkbox" data-store="Croma" checked /> Croma</label>
+                  <label><input type="checkbox" data-store="Reliance Digital" /> Reliance Digital</label>
+                </div>
+
+                <div class="filter-block">
+                  <p class="filter-label">Brand</p>
+                  <div class="chip-row">
+                    <button class="chip on" data-filter-group="brand" data-value="Lenovo" type="button">Lenovo</button>
+                    <button class="chip on" data-filter-group="brand" data-value="HP" type="button">HP</button>
+                    <button class="chip" data-filter-group="brand" data-value="ASUS" type="button">ASUS</button>
+                    <button class="chip" data-filter-group="brand" data-value="Dell" type="button">Dell</button>
+                    <button class="chip" data-filter-group="brand" data-value="Acer" type="button">Acer</button>
+                    <button class="chip" data-filter-group="brand" data-value="Apple" type="button">Apple</button>
+                  </div>
+                </div>
+
+                <div class="filter-block">
+                  <p class="filter-label">RAM</p>
+                  <div class="chip-row">
+                    <button class="chip" data-filter-group="ram" data-value="8" type="button">8 GB</button>
+                    <button class="chip on" data-filter-group="ram" data-value="16" type="button">16 GB</button>
+                    <button class="chip" data-filter-group="ram" data-value="32" type="button">32 GB</button>
+                  </div>
+                </div>
+
+                <div class="filter-block">
+                  <p class="filter-label">Processor</p>
+                  <label><input type="checkbox" data-processor="Intel i5" checked /> Intel i5</label>
+                  <label><input type="checkbox" data-processor="Intel i7" checked /> Intel i7</label>
+                  <label><input type="checkbox" data-processor="AMD Ryzen 5" checked /> AMD Ryzen 5</label>
+                  <label><input type="checkbox" data-processor="AMD Ryzen 7" /> AMD Ryzen 7</label>
+                </div>
+
+                <div class="filter-block">
+                  <p class="filter-label">Min rating</p>
+                  <div class="chip-row">
+                    <button class="chip" data-filter-group="rating" data-value="0" type="button">Any</button>
+                    <button class="chip on" data-filter-group="rating" data-value="4" type="button">4+ stars</button>
+                    <button class="chip" data-filter-group="rating" data-value="4.5" type="button">4.5+ stars</button>
+                  </div>
+                </div>
+              </aside>
+
+              <div class="results-column">
+                <div class="results-head">
+                  <p id="results-count">24 laptops found</p>
+                  <select id="sort-select">
+                    <option>Best value</option>
+                    <option>Price: low to high</option>
+                    <option>Price: high to low</option>
+                    <option>Top rated</option>
+                  </select>
+                </div>
+
+                <div id="results-list"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-screen" id="price">
+            <section class="panel-card">
+              <div class="panel-head">
+                <div>
+                  <p class="section-label">Trend</p>
+                  <h2 id="price-history-title">Lenovo IdeaPad Slim 3 price history</h2>
+                </div>
+                <div class="period-row" id="period-row">
+                  <button class="period-btn" type="button" data-period="1M">1M</button>
+                  <button class="period-btn active" type="button" data-period="3M">3M</button>
+                  <button class="period-btn" type="button" data-period="6M">6M</button>
+                  <button class="period-btn" type="button" data-period="1Y">1Y</button>
+                </div>
+              </div>
+              <div class="chart-wrap">
+                <svg class="chart-svg" id="price-chart" viewBox="0 0 600 180" preserveAspectRatio="none"></svg>
+              </div>
+              <div class="price-labels" id="price-labels"></div>
+              <div class="price-summary" id="price-summary">
+                <div><strong>Lowest:</strong> ₹51,999</div>
+                <div><strong>Highest:</strong> ₹64,999</div>
+                <div><strong>Current:</strong> ₹54,990</div>
+              </div>
+            </section>
+
+            <section class="panel-card">
+              <div class="panel-head">
+                <div>
+                  <p class="section-label">Now</p>
+                  <h2>Store comparison</h2>
+                </div>
+              </div>
+              <div class="bar-list" id="bar-list"></div>
+            </section>
+          </div>
+
+          <div class="tab-screen" id="alert">
+            <section class="panel-card">
+              <div class="panel-head">
+                <div>
+                  <p class="section-label">Automation</p>
+                  <h2>Set a price drop alert</h2>
+                </div>
+              </div>
+              <form class="alert-form" id="alert-form">
+                <input id="alert-product" type="text" placeholder="Search product name..." />
+                <input id="alert-target" type="text" placeholder="Alert below price..." />
+                <input id="alert-contact" type="email" placeholder="Email or phone..." />
+                <button type="submit">Set alert</button>
+              </form>
+              <p class="form-message" id="alert-message"></p>
+            </section>
+
+            <section class="panel-card">
+              <div class="panel-head">
+                <div>
+                  <p class="section-label">Saved alerts</p>
+                  <h2>Active notifications</h2>
+                </div>
+              </div>
+              <div class="alert-list" id="alert-list"></div>
+            </section>
+
+            <section class="panel-card">
+              <div class="panel-head">
+                <div>
+                  <p class="section-label">Notification channels</p>
+                  <h2>Choose delivery methods</h2>
+                </div>
+              </div>
+              <div class="channels-row">
+                <label><input type="checkbox" checked /> Email</label>
+                <label><input type="checkbox" checked /> WhatsApp</label>
+                <label><input type="checkbox" /> SMS</label>
+                <label><input type="checkbox" /> Push notification</label>
+                <label><input type="checkbox" /> Telegram</label>
+              </div>
+            </section>
+          </div>
+
+          <div class="tab-screen" id="mobile">
+            <section class="mobile-preview">
+              <div class="phone">
+                <div class="phone-notch"></div>
+                <div class="phone-body">
+                  <div class="mobile-search">
+                    <input type="text" value="Best laptop under ₹60k" />
+                    <button type="button">Find</button>
+                  </div>
+                  <div class="mobile-pills">
+                    <span class="mobile-pill active">All</span>
+                    <span class="mobile-pill">Amazon</span>
+                    <span class="mobile-pill">Flipkart</span>
+                    <span class="mobile-pill">Croma</span>
+                  </div>
+                  <p class="mobile-meta" id="mobile-meta">24 results, sorted by best value</p>
+                  <div id="mobile-results"></div>
+                </div>
+                <div class="mobile-nav">
+                  <div class="nav-item active"><span class="nav-icon">S</span>Search</div>
+                  <div class="nav-item"><span class="nav-icon">A</span>Alerts</div>
+                  <div class="nav-item"><span class="nav-icon">H</span>History</div>
+                  <div class="nav-item"><span class="nav-icon">Me</span>Profile</div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
