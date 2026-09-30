@@ -1,51 +1,54 @@
-# 🚀 BestDeals
+# BestDeals
 
-BestDeals is a web application that helps users find the best deals on products across multiple platforms like Amazon and Flipkart.
+BestDeals helps users find and compare deals across Amazon, Flipkart, Croma, and more.
 
-## 🌟 Features
-- 🔍 Search for products easily
-- 💰 Compare prices from different platforms
-- ⭐ View ratings and reviews
-- ⚡ Fast and simple UI
+## Features
+- Search products by budget and category
+- Compare prices across stores
+- Product photos with graceful fallbacks
+- AI shopping assistant (OpenAI optional)
+- Ready for local Node hosting and Vercel
 
-## 🛠️ Tech Stack
+## Tech stack
 - Frontend: HTML, CSS, JavaScript
-- Backend: Node.js (Express-style HTTP server)
-- APIs: Custom search and AI endpoints (see below)
+- Backend: Node.js HTTP server locally, Vercel Serverless API routes in production
 
-## 📦 Installation
+## Local setup
 
-1. Clone the repository:
+1. Clone the repository
+2. Copy env defaults:
    ```bash
-   git clone https://github.com/rosesebyk/BestDeals
-   cd BestDeals
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
+   cp .env.example .env
    ```
 3. Start the server:
    ```bash
    npm start
    ```
+4. Open `http://localhost:3000`
 
-## 📑 API Endpoints
+Optional: set `OPENAI_API_KEY` in `.env` for live AI answers. Without it, heuristic fallbacks still work.
 
-- `GET /api/health` — Health check and provider status
-- `GET /api/search?q=QUERY&category=CATEGORY` — Search products
-- `POST /api/ai/parse` — AI-powered query parsing
-- `POST /api/ai/chat` — AI-powered chat for deal questions
+## Deploy to Vercel
 
-## 📁 Project Structure
+1. Push this repo to GitHub
+2. Import the project in [Vercel](https://vercel.com)
+3. Framework Preset: **Other**
+4. Add env vars from `.env.example` if needed (`OPENAI_API_KEY`, affiliate keys)
+5. Deploy
 
-- `server.js` — Main server file
-- `src/` — Source code for AI and search services
-- `assets/` — Images and media
-- `styles.css` — Main stylesheet
-- `index.html`, `app.html` — Frontend HTML files
+Static pages are served directly. API routes live under `/api/*`:
+- `GET /api/health`
+- `GET /api/search?q=QUERY&category=CATEGORY`
+- `POST /api/ai/parse`
+- `POST /api/ai/chat`
 
-## 🤝 Contributing
-Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
+## Project structure
 
-## 📄 License
+- `server.js` — local static + API server
+- `api/` — Vercel serverless endpoints
+- `src/` — search, AI, and product image helpers
+- `assets/` — media and category art
+- `index.html`, `app.html`, `styles.css`, `script.js` — frontend
+
+## License
 MIT

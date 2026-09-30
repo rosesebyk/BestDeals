@@ -3,65 +3,34 @@ const fs = require("fs");
 const path = require("path");
 const { URL } = require("url");
 
-loadEnvFile(path.join(__dirname, ".env"));
-
+const { loadEnvFile } = require("./src/env");
+const { sendJson, readRequestBody } = require("./src/http-utils");
 const { searchCatalog, getProviderStatus } = require("./src/search-service");
 const { parseShoppingQuery, answerDealQuestion } = require("./src/ai-service");
 
+loadEnvFile(path.join(__dirname, ".env"));
+
 const rootDir = __dirname;
 const port = Number(process.env.PORT || 3000);
-const host = process.env.HOST || "127.0.0.1";
-
-function loadEnvFile(filePath) {
-  if (!fs.existsSync(filePath)) {
-    return;
-  }
-
-  const content = fs.readFileSync(filePath, "utf8");
-  content.split(/\r?\n/).forEach((line) => {
-    const trimmed = line.trim();
-    if (!trimmed || trimmed.startsWith("#")) {
-      return;
-    }
-
-    const separatorIndex = trimmed.indexOf("=");
-    if (separatorIndex === -1) {
-      return;
-    }
-
-    const key = trimmed.slice(0, separatorIndex).trim();
-    let value = trimmed.slice(separatorIndex + 1).trim();
-
-    if (
-      (value.startsWith('"') && value.endsWith('"')) ||
-      (value.startsWith("'") && value.endsWith("'"))
-    ) {
-      value = value.slice(1, -1);
-    }
-
-    if (!(key in process.env)) {
-      process.env[key] = value;
-    }
-  });
-}
+const host = process.env.HOST || "0.0.0.0";
 
 const mimeTypes = {
   ".html": "text/html; charset=utf-8",
   ".css": "text/css; charset=utf-8",
   ".js": "application/javascript; charset=utf-8",
   ".json": "application/json; charset=utf-8",
+  ".png": "image/png",
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".webp": "image/webp",
+  ".gif": "image/gif",
+  ".ico": "image/x-icon",
   ".mov": "video/quicktime",
   ".mp4": "video/mp4",
   ".svg": "image/svg+xml; charset=utf-8",
+  ".woff": "font/woff",
+  ".woff2": "font/woff2",
 };
-
-function sendJson(response, statusCode, payload) {
-  response.writeHead(statusCode, {
-    "Content-Type": "application/json; charset=utf-8",
-    "Cache-Control": "no-store",
-  });
-  response.end(JSON.stringify(payload));
-}
 
 function sendFile(request, response, filePath) {
   fs.stat(filePath, (statError, stats) => {
@@ -70,8 +39,11 @@ function sendFile(request, response, filePath) {
       return;
     }
 
-    const contentType = mimeTypes[path.extname(filePath)] || "application/octet-stream";
+    const contentType = mimeTypes[path.extname(filePath).toLowerCase()] || "application/octet-stream";
     const range = request.headers.range;
+    const cacheControl = contentType.startsWith("text/html")
+      ? "no-cache"
+      : "public, max-age=86400, stale-while-revalidate=604800";
 
     if (range) {
       const match = range.match(/bytes=(\d*)-(\d*)/);
@@ -91,6 +63,7 @@ function sendFile(request, response, filePath) {
         "Content-Length": end - start + 1,
         "Content-Range": `bytes ${start}-${end}/${stats.size}`,
         "Accept-Ranges": "bytes",
+        "Cache-Control": cacheControl,
       });
 
       fs.createReadStream(filePath, { start, end }).pipe(response);
@@ -101,33 +74,19 @@ function sendFile(request, response, filePath) {
       "Content-Type": contentType,
       "Content-Length": stats.size,
       "Accept-Ranges": "bytes",
+      "Cache-Control": cacheControl,
     });
     fs.createReadStream(filePath).pipe(response);
   });
 }
 
-function readRequestBody(request) {
-  return new Promise((resolve, reject) => {
-    let data = "";
-    request.on("data", (chunk) => {
-      data += chunk;
-      if (data.length > 1_000_000) {
-        reject(new Error("Request body too large"));
-      }
-    });
-    request.on("end", () => {
-      try {
-        resolve(data ? JSON.parse(data) : {});
-      } catch (error) {
-        reject(error);
-      }
-    });
-    request.on("error", reject);
-  });
-}
+async function handleRequest(request, response) {
+  const requestUrl = new URL(request.url, `http://${request.headers.host || "localhost"}`);
 
-const server = http.createServer(async (request, response) => {
-  const requestUrl = new URL(request.url, `http://${request.headers.host}`);
+  if (request.method === "OPTIONS") {
+    sendJson(response, 204, {});
+    return;
+  }
 
   if (requestUrl.pathname === "/api/health") {
     sendJson(response, 200, {
@@ -178,7 +137,8 @@ const server = http.createServer(async (request, response) => {
   }
 
   const safePath = requestUrl.pathname === "/" ? "/index.html" : requestUrl.pathname;
-  const filePath = path.join(rootDir, safePath);
+  const decodedPath = decodeURIComponent(safePath);
+  const filePath = path.normalize(path.join(rootDir, decodedPath));
 
   if (!filePath.startsWith(rootDir)) {
     sendJson(response, 403, { error: "Forbidden" });
@@ -186,8 +146,18 @@ const server = http.createServer(async (request, response) => {
   }
 
   sendFile(request, response, filePath);
+}
+
+const server = http.createServer((request, response) => {
+  handleRequest(request, response).catch((error) => {
+    sendJson(response, 500, { error: "Internal server error", detail: error.message });
+  });
 });
 
-server.listen(port, host, () => {
-  console.log(`Best Deal Finder running on http://${host}:${port}`);
-});
+if (require.main === module) {
+  server.listen(port, host, () => {
+    console.log(`Best Deal Finder running on http://${host === "0.0.0.0" ? "localhost" : host}:${port}`);
+  });
+}
+
+module.exports = server;

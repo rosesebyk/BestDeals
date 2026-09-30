@@ -4,6 +4,48 @@ const storageKeys = {
   recentSearches: "bestdeals.recent-searches",
 };
 
+const categoryImages = {
+  Laptops: "/assets/category-art/laptops.svg",
+  Phones: "/assets/category-art/phones.svg",
+  TVs: "/assets/category-art/tvs.svg",
+  Headphones: "/assets/category-art/headphones.svg",
+  Tablets: "/assets/category-art/tablets.svg",
+  Cameras: "/assets/category-art/cameras.svg",
+};
+
+const productImages = {
+  "lenovo-ideapad-slim-3":
+    "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=800&q=80",
+  "hp-pavilion-15":
+    "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?auto=format&fit=crop&w=800&q=80",
+  "asus-vivobook-15":
+    "https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?auto=format&fit=crop&w=800&q=80",
+  "acer-aspire-lite":
+    "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80",
+  "samsung-galaxy-s24-fe":
+    "https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?auto=format&fit=crop&w=800&q=80",
+  "iphone-14":
+    "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=800&q=80",
+  "oneplus-12r":
+    "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=800&q=80",
+  "sony-bravia-55-x74l":
+    "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?auto=format&fit=crop&w=800&q=80",
+  "samsung-crystal-4k":
+    "https://images.unsplash.com/photo-1461151304267-38535e780c79?auto=format&fit=crop&w=800&q=80",
+  "boat-nirvana-751":
+    "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80",
+  "sony-wh-ch520":
+    "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=800&q=80",
+  "xiaomi-pad-6":
+    "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?auto=format&fit=crop&w=800&q=80",
+  "samsung-tab-s9-fe":
+    "https://images.unsplash.com/photo-1561154464-82e9adf32764?auto=format&fit=crop&w=800&q=80",
+  "canon-eos-r100":
+    "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=800&q=80",
+  "sony-zv-e10":
+    "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?auto=format&fit=crop&w=800&q=80",
+};
+
 const fallbackProducts = [
   {
     id: "lenovo-ideapad-slim-3",
@@ -337,6 +379,10 @@ const fallbackProducts = [
   },
 ];
 
+fallbackProducts.forEach((product) => {
+  product.image = product.image || productImages[product.id] || categoryImages[product.category];
+});
+
 const defaultAlerts = [
   { product: "Lenovo IdeaPad Slim 3", target: 50000, contact: "email", triggered: false },
   { product: "Samsung Galaxy S24 FE", target: 35000, contact: "sms", triggered: false },
@@ -456,11 +502,6 @@ const reviewStrip = document.getElementById("review-strip");
 const resultsList = document.getElementById("results-list");
 const resultsCount = document.getElementById("results-count");
 const resultsNote = document.getElementById("results-note");
-const aiModeBadge = document.getElementById("ai-mode-badge");
-const aiSummary = document.getElementById("ai-summary");
-const aiStatusNote = document.getElementById("ai-status-note");
-const aiFilters = document.getElementById("ai-filters");
-const aiSuggestions = document.getElementById("ai-suggestions");
 const aiChatLog = document.getElementById("ai-chat-log");
 const aiChatStatus = document.getElementById("ai-chat-status");
 const aiChatForm = document.getElementById("ai-chat-form");
@@ -478,6 +519,7 @@ const pickPrice = document.getElementById("pick-price");
 const pickOrig = document.getElementById("pick-orig");
 const pickSave = document.getElementById("pick-save");
 const pickCta = document.getElementById("pick-cta");
+const pickVisual = document.getElementById("pick-visual");
 const priceHistoryTitle = document.getElementById("price-history-title");
 const priceSummary = document.getElementById("price-summary");
 const alertList = document.getElementById("alert-list");
@@ -504,7 +546,6 @@ let backendMeta = {
   mode: "mock",
   providers: {},
 };
-let currentAiInsight = null;
 let lastAiChatError = "";
 let searchDebounceTimer = null;
 let latestSearchRequest = 0;
@@ -867,48 +908,6 @@ async function loadCatalogFromApi() {
   }
 }
 
-async function fetchAiInsight() {
-  try {
-    const response = await fetch("/api/ai/parse", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        query: state.query,
-        category: state.category,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`);
-    }
-
-    currentAiInsight = await response.json();
-  } catch {
-    currentAiInsight = {
-      mode: "heuristic",
-      summary: `I interpreted this as a search for ${state.category.toLowerCase()} with the current filters.`,
-      filters: {
-        category: state.category,
-        budget: state.budget,
-        useCase: "general use",
-      },
-      suggestions: [
-        `See the best ${state.category.toLowerCase()} matches first, then compare the rest by price and rating.`,
-        "Ask AI to rank options for battery, camera, gaming, coding, student use, or value.",
-        "Use alerts if your first choice is slightly above budget.",
-        "Check seller quality, warranty, and return details.",
-        "Keep a few close alternatives instead of focusing on only one product.",
-        "Compare both top-rated and lowest-price options before deciding.",
-        "Shortlist at least 3 close matches so you do not miss a better value deal.",
-        "Use the assistant to compare camera, battery, gaming, or everyday use.",
-      ],
-      error: "AI search endpoint is unavailable right now.",
-    };
-  }
-}
-
 function formatINR(value) {
   return `₹${Number(value).toLocaleString("en-IN")}`;
 }
@@ -1106,36 +1105,10 @@ function renderReviewStrip(items) {
     .join("");
 }
 
-function renderAiInsight() {
-  const insight = currentAiInsight;
-  if (!insight) {
-    return;
+function updateAiChatStatus(message) {
+  if (aiChatStatus) {
+    aiChatStatus.textContent = message;
   }
-
-  aiModeBadge.textContent = insight.mode === "openai" ? "OpenAI mode" : "Heuristic mode";
-  if (insight.mode === "openai") {
-    aiStatusNote.textContent = "AI is connected and using OpenAI for richer search understanding.";
-    aiChatStatus.textContent = lastAiChatError || "Assistant replies are being generated with OpenAI.";
-  } else {
-    aiStatusNote.textContent =
-      insight.error || "AI is currently running in fallback mode. Add an OpenAI API key in `.env` for full assistant responses.";
-    aiChatStatus.textContent =
-      lastAiChatError || "Assistant replies are using fallback logic right now.";
-  }
-  aiSummary.textContent = insight.summary;
-
-  aiFilters.innerHTML = [
-    insight.filters?.category ? `Category: ${insight.filters.category}` : "",
-    insight.filters?.budget ? `Budget: ${formatINR(insight.filters.budget)}` : "",
-    insight.filters?.useCase ? `Use case: ${insight.filters.useCase}` : "",
-  ]
-    .filter(Boolean)
-    .map((label) => `<span class="ai-filter-pill">${label}</span>`)
-    .join("");
-
-  aiSuggestions.innerHTML = (insight.suggestions || [])
-    .map((item) => `<div class="ai-suggestion">${item}</div>`)
-    .join("");
 }
 
 function appendAiBubble(role, text) {
@@ -1154,12 +1127,23 @@ function getProductVisual(product, compact = false) {
 
   const tone = categoryToneMap[product.category] || "visual-laptop";
   const sizeClass = compact ? "product-visual compact" : "product-visual";
-  const art = getProductArtDataUri(product, compact);
+  const fallbackArt = getProductArtDataUri(product, compact);
+  const imageSrc =
+    product.image || productImages[product.id] || categoryImages[product.category] || fallbackArt;
+  const safeName = escapeSvgText(product.name || product.brand || "Product");
 
   return `
     <div class="${sizeClass} ${tone}" aria-hidden="true">
       <span class="product-visual-glow"></span>
-      <img class="product-visual-image" src="${art}" alt="" />
+      <img
+        class="product-visual-image"
+        src="${imageSrc}"
+        alt="${safeName}"
+        loading="lazy"
+        decoding="async"
+        onload="this.classList.add('is-loaded')"
+        onerror="this.onerror=null;this.src='${fallbackArt}';this.classList.add('is-loaded','is-fallback')"
+      />
       <span class="product-visual-brand">${product.brand}</span>
     </div>
   `;
@@ -1247,6 +1231,9 @@ function renderBestPick(product) {
     pickCta.textContent = "Reset filters";
     pickCta.href = "#";
     pickCta.dataset.action = "reset-filters";
+    if (pickVisual) {
+      pickVisual.innerHTML = "";
+    }
     return;
   }
 
@@ -1261,6 +1248,9 @@ function renderBestPick(product) {
   pickCta.textContent = `Buy on ${product.store}`;
   pickCta.href = product.affiliateUrl;
   pickCta.dataset.action = "affiliate-link";
+  if (pickVisual) {
+    pickVisual.innerHTML = getProductVisual(product);
+  }
 }
 
 function renderCompareCards(items) {
@@ -1273,8 +1263,8 @@ function renderCompareCards(items) {
 
   compareGrid.innerHTML = compareItems
     .map(
-      (product) => `
-        <article class="store-card">
+      (product, index) => `
+        <article class="store-card reveal-card" style="--reveal-delay:${Math.min(index, 8) * 45}ms">
           ${getProductVisual(product)}
           <div class="store-top">
             <span class="store-tag ${storeClassMap[product.store]}">${product.store}</span>
@@ -1310,7 +1300,7 @@ function renderResults(items) {
   resultsList.innerHTML = items
     .map(
       (product, index) => `
-        <article class="result-card ${index === 0 ? "top-pick" : ""}">
+        <article class="result-card reveal-card ${index === 0 ? "top-pick" : ""}" style="--reveal-delay:${Math.min(index, 10) * 40}ms">
           <div class="result-thumb">${getProductVisual(product, true)}</div>
           <div class="result-info">
             <h3>${product.name}</h3>
@@ -1409,13 +1399,13 @@ function drawChart(product, period) {
   chart.innerHTML = `
     <defs>
       <linearGradient id="price-gradient" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#85B7EB" stop-opacity="0.35"></stop>
-        <stop offset="100%" stop-color="#85B7EB" stop-opacity="0"></stop>
+        <stop offset="0%" stop-color="#4FA0E0" stop-opacity="0.4"></stop>
+        <stop offset="100%" stop-color="#4FA0E0" stop-opacity="0"></stop>
       </linearGradient>
     </defs>
     <path d="${fillPath}" fill="url(#price-gradient)"></path>
-    <path d="${linePath}" stroke="#378ADD" stroke-width="3" fill="none"></path>
-    ${points.map((_, index) => `<circle cx="${xPoints[index]}" cy="${yPoints[index]}" r="4" fill="#185FA5"></circle>`).join("")}
+    <path d="${linePath}" stroke="#4FA0E0" stroke-width="3" fill="none"></path>
+    ${points.map((_, index) => `<circle cx="${xPoints[index]}" cy="${yPoints[index]}" r="4" fill="#1F6FB8"></circle>`).join("")}
   `;
 
   priceLabels.innerHTML = labels.map((label) => `<span>${label}</span>`).join("");
@@ -1469,7 +1459,6 @@ function syncUI(items) {
   renderBestPick(topProduct);
   renderCompareCards(items);
   renderReviewStrip(items);
-  renderAiInsight();
   renderResults(items);
   renderStoreBars(items);
   renderMobile(items);
@@ -1503,8 +1492,16 @@ async function runSearch() {
 
   const requestId = latestSearchRequest + 1;
   latestSearchRequest = requestId;
+  document.body.classList.add("is-searching");
+  resultsCount.textContent = "Searching deals…";
 
-  await Promise.all([fetchAiInsight(), loadCatalogFromApi()]);
+  try {
+    await Promise.all([loadCatalogFromApi()]);
+  } finally {
+    if (requestId === latestSearchRequest) {
+      document.body.classList.remove("is-searching");
+    }
+  }
 
   if (requestId !== latestSearchRequest) {
     return;
@@ -1671,7 +1668,6 @@ pills.forEach((pill) => {
     state.query = "";
     queryInput.value = "";
     updateQueryTitle();
-    await fetchAiInsight();
     await loadCatalogFromApi();
     refresh();
   });
@@ -1805,20 +1801,24 @@ aiChatForm.addEventListener("submit", async (event) => {
 
     const payload = await response.json();
     lastAiChatError = payload.error || "";
-    renderAiInsight();
+    updateAiChatStatus(lastAiChatError || "Ask questions about the current deal shortlist.");
     appendAiBubble("assistant", payload.answer);
   } catch {
     lastAiChatError = "AI assistant could not be reached from the app.";
-    renderAiInsight();
+    updateAiChatStatus(lastAiChatError);
     appendAiBubble("assistant", "I could not reach the AI assistant just now, so I recommend comparing the top value and top-rated options first.");
   }
 });
 
 async function bootstrap() {
+  document.body.classList.add("is-searching");
   initializeUI();
   renderAlerts();
-  await fetchAiInsight();
-  await loadCatalogFromApi();
+  try {
+    await loadCatalogFromApi();
+  } finally {
+    document.body.classList.remove("is-searching");
+  }
   appendAiBubble("assistant", "Ask me which option is best for camera, battery, gaming, coding, student use, or value, and I’ll compare the current shortlist.");
   refresh();
 }

@@ -47,13 +47,16 @@
           <p class="section-label">Best pick for you</p>
           <section class="best-pick-card" id="best-pick-card">
             <div class="best-pick-main">
-              <span class="pick-badge" id="pick-badge">Best Value</span>
-              <div class="best-pick-copy">
-                <h2 id="pick-name">Lenovo IdeaPad Slim 3</h2>
-                <p class="pick-specs" id="pick-specs">Intel i5-12th Gen, 16GB RAM, 512GB SSD, 15.6" FHD display</p>
-                <div class="pick-meta" id="pick-meta">
-                  <span id="pick-rating">4.4/5 rating</span>
-                  <span id="pick-discount">13% off</span>
+              <div class="best-pick-visual" id="pick-visual"></div>
+              <div class="best-pick-copy-wrap">
+                <span class="pick-badge" id="pick-badge">Best Value</span>
+                <div class="best-pick-copy">
+                  <h2 id="pick-name">Lenovo IdeaPad Slim 3</h2>
+                  <p class="pick-specs" id="pick-specs">Intel i5-12th Gen, 16GB RAM, 512GB SSD, 15.6" FHD display</p>
+                  <div class="pick-meta" id="pick-meta">
+                    <span id="pick-rating">4.4/5 rating</span>
+                    <span id="pick-discount">13% off</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -85,42 +88,22 @@
         </section>
 
         <section class="ai-section">
-          <div class="ai-grid">
-            <article class="ai-card">
-              <div class="ai-head">
-                <div>
-                  <p class="section-label">AI Search</p>
-                  <h2>Intent interpretation</h2>
-                </div>
-                <span class="ai-mode" id="ai-mode-badge">Heuristic mode</span>
+          <article class="ai-card">
+            <div class="ai-head">
+              <div>
+                <p class="section-label">AI Assistant</p>
+                <h2>Ask about the shortlist</h2>
               </div>
-              <p class="ai-summary" id="ai-summary">
-                I interpreted this as a search for laptops under ₹60,000, optimized for general use.
-              </p>
-              <p class="ai-status-note" id="ai-status-note">
-                AI is currently running in fallback mode. Add an OpenAI API key in `.env` for full assistant responses.
-              </p>
-              <div class="ai-filters" id="ai-filters"></div>
-              <div class="ai-suggestions" id="ai-suggestions"></div>
-            </article>
-
-            <article class="ai-card">
-              <div class="ai-head">
-                <div>
-                  <p class="section-label">AI Assistant</p>
-                  <h2>Ask about the shortlist</h2>
-                </div>
-              </div>
-              <p class="ai-status-note" id="ai-chat-status">
-                Assistant replies are using fallback logic right now.
-              </p>
-              <div class="ai-chat-log" id="ai-chat-log"></div>
-              <form class="ai-chat-form" id="ai-chat-form">
-                <input id="ai-chat-input" type="text" placeholder="Which one is best for coding and battery life?" />
-                <button type="submit">Ask AI</button>
-              </form>
-            </article>
-          </div>
+            </div>
+            <p class="ai-status-note" id="ai-chat-status">
+              Ask questions about the current deal shortlist.
+            </p>
+            <div class="ai-chat-log" id="ai-chat-log"></div>
+            <form class="ai-chat-form" id="ai-chat-form">
+              <input id="ai-chat-input" type="text" placeholder="Which one is best for coding and battery life?" />
+              <button type="submit">Ask AI</button>
+            </form>
+          </article>
         </section>
 
         <section class="tabs-panel">

@@ -1,4 +1,5 @@
 const { mockCatalog } = require("./mock-catalog");
+const { attachProductImages } = require("./product-images");
 
 const categoryKeywords = {
   Laptops: ["laptop", "notebook"],
@@ -155,11 +156,13 @@ function matchesSearchQuery(query, values) {
 function searchMockCatalog({ query, category }) {
   const activeCategory = inferCategory(query, category);
 
-  const products = mockCatalog
-    .filter((product) => product.category === activeCategory)
-    .filter((product) => {
-      return matchesSearchQuery(query, [product.name, product.brand, product.category, product.specs, product.store]);
-    });
+  const products = attachProductImages(
+    mockCatalog
+      .filter((product) => product.category === activeCategory)
+      .filter((product) => {
+        return matchesSearchQuery(query, [product.name, product.brand, product.category, product.specs, product.store]);
+      }),
+  );
 
   return {
     products,
